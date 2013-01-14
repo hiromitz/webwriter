@@ -1,3 +1,8 @@
+/**
+ * Init WebWriter
+ * @param {Array} lines    [description]
+ * @param {Object} options [description]
+ */
 var Editor = function (lines, options) {
 
 	this.options = {
