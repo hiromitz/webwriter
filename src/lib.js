@@ -1,9 +1,5 @@
 /* Utils*/
 
-var $ = function (element) {
-	return document.getElementById(element);	
-};
-
 var mac = /Mac/.test(navigator.platform);
 var win = /Win/.test(navigator.platform);
 
