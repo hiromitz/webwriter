@@ -5,7 +5,7 @@ Events.js
 */
 Extend(Editor.prototype, {
 	addEvents: function () {
-		var el = this.element;
+		var el = this.element,
 			view = el.view,
 			input = el.input;
 		/* View */
@@ -244,7 +244,7 @@ var keyBindings = {
 		"super+backspace": "deleteLine",
 		"alt+delete": "delWordRight",
 		"super+s": "save",
-		"super+f": "find",
+		// "super+f": "find",
 		"super+g": "findNext",
 		"shift+super+g": "findPrev",
 		"super+alt+f": "replace",

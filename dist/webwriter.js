@@ -1,10 +1,16 @@
-;(function(){
+"use strict";
+
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+}(function($){
 
   /* Utils*/
-  
-  var $ = function (element) {
-  	return document.getElementById(element);	
-  };
   
   var mac = /Mac/.test(navigator.platform);
   var win = /Win/.test(navigator.platform);
@@ -70,14 +76,17 @@
   		return /\w/.test(ch) || ch.toUpperCase() != ch.toLowerCase();
   	}
   };
-  var Editor = function (lines, options) {
+  var Editor = function (options) {
   
   	this.options = {
   		localStorage: "content",
   		max_line: 64,
   		padding_length: 6,
   		smartTypingPairs: true,
-  		smartNewline: true
+  		smartNewline: true,
+  		container: document.body,
+  		save: function() {},
+  		lines: ''
   	};
   
   	Extend(this.options, options);
@@ -110,7 +119,7 @@
   	this.hideCursor();
   	this.setLayout();
   	this.setTab();
-  	this.addLines(lines);
+  	this.addLines(this.options.lines);
   	this.addEvents();
   
   };
@@ -144,7 +153,7 @@
   		// Elements
   		var doc = document.createElement("div");
   		doc.innerHTML = template;
-  			editor = doc.firstChild,
+  		var	editor = doc.firstChild,
   			header = editor.firstChild,
   			footer = editor.lastChild,
   			view = header.nextSibling,
@@ -176,7 +185,7 @@
   			input: input
   		};
   
-  		document.body.appendChild(this.editor);
+  		this.options.container.appendChild(this.editor);
   
   	},
   
@@ -215,7 +224,7 @@
   */
   Extend(Editor.prototype, {
   	addEvents: function () {
-  		var el = this.element;
+  		var el = this.element,
   			view = el.view,
   			input = el.input;
   		/* View */
@@ -454,7 +463,7 @@
   		"super+backspace": "deleteLine",
   		"alt+delete": "delWordRight",
   		"super+s": "save",
-  		"super+f": "find",
+  		// "super+f": "find",
   		"super+g": "findNext",
   		"shift+super+g": "findPrev",
   		"super+alt+f": "replace",
@@ -683,13 +692,6 @@
   
   	getPosition: function (x, y) {
   		var range = document.caretRangeFromPoint(x, y);
-  
-  		if (range.startContainer.className === "cursor") {
-  			// ocultamos el cursor y volvemos a crear el rango
-  			this.hideCursor();
-  			range = document.caretRangeFromPoint(x, y);
-  		}
-  
   		range.expand('character');
   
   		var node = range.startContainer, ch = range.startOffset, tag = this.tag_container;
@@ -1279,8 +1281,13 @@
   	},
   
   	save: function () {
-  		var save = this.options.localStorage;
-  		localStorage[save] = this.getText(1, this.getSize());
+  		var save = this.options.localStorage,
+  			data = this.getText(1, this.getSize());
+  		localStorage[save] = data;
+  		if(typeof this.options.save === 'function') {
+  			this.options.save(data);
+  		}
+  
   	}
   
   });
@@ -1679,11 +1686,28 @@
   
   };
 
-  // Setup webwriter as an amd module, if define is available
-  if (typeof define !== "undefined" && typeof define === "function" && define.amd) {
-    define( "webwriter", [], function () { return Editor; } );
-  } else {
-    window.Editor = Editor;
-  }
+  $.fn.webwriter = function(options) {
+    return this.each(function () {
+      var $this = $(this),
+        data  = $this.data('webwriter');
 
-})();
+      if(!data) {
+        options = $.extend({}, true, options, {
+          container: this
+        });
+        $this.data('webwriter', (data = new Editor(options)));
+      }
+      if(typeof options == 'string') {
+        data[options]();
+      }
+    });
+  };
+
+  // Setup webwriter as an amd module, if define is available
+  // if (typeof define !== "undefined" && typeof define === "function" && define.amd) {
+  //   define( "webwriter", [], function () { return Editor; } );
+  // } else {
+  //   window.Editor = Editor;
+  // }
+
+}));

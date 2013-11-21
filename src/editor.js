@@ -1,4 +1,4 @@
-var Editor = function (lines, options) {
+var Editor = function (options) {
 
 	this.options = {
 		localStorage: "content",
@@ -7,7 +7,8 @@ var Editor = function (lines, options) {
 		smartTypingPairs: true,
 		smartNewline: true,
 		container: document.body,
-		save: function() {}
+		save: function() {},
+		lines: ''
 	};
 
 	Extend(this.options, options);
@@ -40,7 +41,7 @@ var Editor = function (lines, options) {
 	this.hideCursor();
 	this.setLayout();
 	this.setTab();
-	this.addLines(lines);
+	this.addLines(this.options.lines);
 	this.addEvents();
 
 };
